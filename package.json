@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "connect-flash": "*",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -15,13 +16,13 @@
     "express-validator": "^5.3.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
-    "serve-favicon": "*",
     "mongodb": "*",
     "mongoose": "*",
     "morgan": "~1.9.1",
     "multer": "*",
     "passport": "*",
     "passport-http": "*",
-    "passport-local": "*"
+    "passport-local": "*",
+    "serve-favicon": "*"
   }
 }
