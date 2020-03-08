@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 
-mongoose.connect('mongodb://localhost/nodeauth', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true});
+mongoose.connect('mongodb+srv://user1:user1@cluster0-ssh7w.mongodb.net/test?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true});
 
 var db = mongoose.connection;
 
