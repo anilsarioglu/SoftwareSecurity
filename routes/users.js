@@ -74,7 +74,9 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
   req.checkBody('email','Email field is required').notEmpty();
   req.checkBody('email','Email is not valid').isEmail();
   req.checkBody('username','Username field is required').notEmpty();
-  req.checkBody('password','Password field is required').notEmpty();
+  req.checkBody('password','Password should not be empty, minimum eight characters, '
+  + 'at least one uppercase and one lowercase letter, one number and '
+  + 'one special character (@$.!%*#?&)').matches(/(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$.!%*#?&])[A-Za-z\d@$.!%*#?&]{8,}$/);
   req.checkBody('password2','Passwords do not match').equals(req.body.password);
 
   // Check Errors
