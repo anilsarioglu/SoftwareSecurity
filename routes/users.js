@@ -3,7 +3,9 @@ var router = express.Router();
 var multer = require('multer');
 var upload = multer({dest: './uploads'});
 var passport = require('passport');
+var randomstring = require("randomstring");
 var LocalStrategy = require('passport-local').Strategy;
+var pwnedPassword = require('hibp').pwnedPassword;
 
 var User = require('../models/user');
 
@@ -61,6 +63,31 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
   var password = req.body.password;
   var password2 = req.body.password2;
 
+  // Generate random password
+  function randomInt(low, high) {
+    return Math.floor(Math.random() * (high - low) + low)
+  }
+
+  var pwlength = randomInt(6, 11);
+  var pw = randomstring.generate({
+    length: pwlength,
+    charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$.!%*#?&'
+  });
+
+  // Check if password field is empty
+  var isEmptyPw = false;
+
+  if(!password){
+    isEmptyPw = true;
+    password = pw;
+    password2 = pw;
+  } else {
+    req.checkBody('password','Password has to be minimum eight characters long, '
+    + 'at least one uppercase and one lowercase letter, one number and '
+    + 'one special character (@$.!%*#?&)').matches(/(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$.!%*#?&])[A-Za-z\d@$.!%*#?&]{8,}$/);
+    req.checkBody('password2','Passwords do not match').equals(req.body.password);
+  }
+
   if(req.file){
   	console.log('Uploading File...');
   	var profileimage = req.file.filename;
@@ -74,10 +101,21 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
   req.checkBody('email','Email field is required').notEmpty();
   req.checkBody('email','Email is not valid').isEmail();
   req.checkBody('username','Username field is required').notEmpty();
-  req.checkBody('password','Password should not be empty, minimum eight characters, '
-  + 'at least one uppercase and one lowercase letter, one number and '
-  + 'one special character (@$.!%*#?&)').matches(/(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$.!%*#?&])[A-Za-z\d@$.!%*#?&]{8,}$/);
-  req.checkBody('password2','Passwords do not match').equals(req.body.password);
+  
+  function checkPwn(pwd){
+    pwnedPassword(pwd).then(numPwns => {
+      if(numPwns){
+        return true;
+      }
+      return false;
+    }
+  )}
+  
+  var x = checkPwn(password);
+
+  if(x){
+    req.checkBody('password','Please choose a stronger password').isEmail();
+  }
 
   // Check Errors
   var errors = req.validationErrors();
@@ -100,7 +138,12 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
       console.log(user);
     });
 
-    req.flash('success', 'You are now registered and can login');
+    if(isEmptyPw){
+      req.flash('success', 'You are now registered and can login. Your password is: ' + password);
+    } else {
+      req.flash('success', 'You are now registered and can login.');
+    }
+    
 
     res.location('/');
     res.redirect('/');

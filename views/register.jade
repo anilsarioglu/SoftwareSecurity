@@ -2,7 +2,7 @@ extends layout
 
 block content
  h2.page-header Register
- p Please register using the form below
+ p Please register using the form below. If you leave the password blank, a password will be generated for you.
  if errors
   each error, i in errors
    div.alert.alert-danger #{error.msg}
