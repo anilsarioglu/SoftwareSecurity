@@ -101,21 +101,18 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
   req.checkBody('email','Email field is required').notEmpty();
   req.checkBody('email','Email is not valid').isEmail();
   req.checkBody('username','Username field is required').notEmpty();
-  
-  function checkPwn(pwd){
-    pwnedPassword(pwd).then(numPwns => {
-      if(numPwns){
-        return true;
-      }
-      return false;
-    }
-  )}
-  
-  var x = checkPwn(password);
 
-  if(x){
-    req.checkBody('password','Please choose a stronger password').isEmail();
-  }
+  var isPwned;
+
+  pwnedPassword(password).then(numPwns => {
+    if(numPwns){
+      isPwned = true;
+      console.log('numPwns: ' + numPwns);
+      console.log('isPwned: ' + isPwned);
+    }
+  })
+
+  console.log('isPwned buiten functie: ' + isPwned);
 
   // Check Errors
   var errors = req.validationErrors();
