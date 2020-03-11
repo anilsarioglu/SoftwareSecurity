@@ -102,49 +102,71 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
   req.checkBody('email','Email is not valid').isEmail();
   req.checkBody('username','Username field is required').notEmpty();
 
-  var isPwned;
-
-  pwnedPassword(password).then(numPwns => {
-    if(numPwns){
-      isPwned = true;
-      console.log('numPwns: ' + numPwns);
-      console.log('isPwned: ' + isPwned);
-    }
-  })
-
-  console.log('isPwned buiten functie: ' + isPwned);
-
-  // Check Errors
-  var errors = req.validationErrors();
-
-  if(errors){
-  	res.render('register', {
-  		errors: errors
-  	});
-  } else {
-  	var newUser = new User({
-      name: name,
-      email: email,
-      username: username,
-      password: password,
-      profileimage: profileimage
-    });
-
-    User.createUser(newUser, function(err, user){
-      if(err) throw err;
-      console.log(user);
-    });
-
-    if(isEmptyPw){
-      req.flash('success', 'You are now registered and can login. Your password is: ' + password);
+  var x = 0;
+  
+  function checkPwn(pwd, callback){
+    pwnedPassword(pwd)
+    .then(numPwns => {
+    if (numPwns) {
+      console.log('=======================> numpwns: ' + numPwns);
+      x = numPwns;
+      console.log('We are in checkPwn function');
+      callback();
     } else {
-      req.flash('success', 'You are now registered and can login.');
+      callback();
     }
-    
-
-    res.location('/');
-    res.redirect('/');
+    });
   }
+
+  function check(){
+    console.log('We are in check function');
+    console.log('x = ' + x);
+    if(x){
+      req.checkBody('password','Please choose a stronger password').isEmail();
+      var errors = req.validationErrors();
+
+      if(errors){
+        res.render('register', {
+          errors: errors
+        });
+      }
+    } else {
+          // Check Errors
+      var errors = req.validationErrors();
+
+
+      if(errors){
+        res.render('register', {
+          errors: errors
+        });
+      } else {
+        var newUser = new User({
+          name: name,
+          email: email,
+          username: username,
+          password: password,
+          profileimage: profileimage
+        });
+
+        User.createUser(newUser, function(err, user){
+          if(err) throw err;
+          console.log(user);
+        });
+
+        if(isEmptyPw){
+          req.flash('success', 'You are now registered and can login. Your password is: ' + password);
+        } else {
+          req.flash('success', 'You are now registered and can login.');
+        }
+        
+
+        res.location('/');
+        res.redirect('/');
+      }
+    }
+  }
+
+  checkPwn(password, check);
 });
 
 router.get('/logout', function(req, res){
