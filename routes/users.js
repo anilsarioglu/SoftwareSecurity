@@ -122,7 +122,8 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
     console.log('We are in check function');
     console.log('x = ' + x);
     if(x){
-      req.checkBody('password','Please choose a stronger password').isEmail();
+      // Generates a validation error
+      req.checkBody('password','Please choose a stronger password').equals(req.body.name);
       var errors = req.validationErrors();
 
       if(errors){
