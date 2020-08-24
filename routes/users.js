@@ -39,7 +39,7 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new LocalStrategy(function(username, password, done){
-  User.getUserByUsername(username, function(err, user){
+  User.getUserByUsername(username.toLowerCase(), function(err, user){
     if(err) throw err;
     if(!user){
       return done(null, false, {message: 'Unknown User'});
@@ -63,6 +63,16 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
   var password = req.body.password;
   var password2 = req.body.password2;
 
+  // Check if username exists
+  var usernameLower = username.toLowerCase();
+  if(User.getUserByUsername(usernameLower, function(err, user){
+    if(err) throw err;
+    if(user){
+      console.log("User already exists");
+      req.checkBody('usernameLower', 'Username already exists').equals(user)
+    }
+  }));
+
   // Generate random password
   function randomInt(low, high) {
     return Math.floor(Math.random() * (high - low) + low)
@@ -82,9 +92,7 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
     password = pw;
     password2 = pw;
   } else {
-    req.checkBody('password','Password has to be minimum eight characters long, '
-    + 'at least one uppercase and one lowercase letter, one number and '
-    + 'one special character (@$.!%*#?&)').matches(/(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$.!%*#?&])[A-Za-z\d@$.!%*#?&]{8,}$/);
+    req.checkBody('password','Password has to be minimum eight characters in length').isLength({min: 8})
     req.checkBody('password2','Passwords do not match').equals(req.body.password);
   }
 
@@ -144,7 +152,7 @@ router.post('/register', upload.single('profileimage') ,function(req, res, next)
         var newUser = new User({
           name: name,
           email: email,
-          username: username,
+          username: username.toLowerCase(),
           password: password,
           profileimage: profileimage
         });
