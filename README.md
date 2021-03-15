@@ -6,3 +6,5 @@ Create a web application that may only be accessed by authenticated users. While
 In your application, users must be able to sign up with a username/email and password. During signup, you must enforce that the password conforms to the rules set forth by https://pages.nist.gov/800-63-3/sp800-63b.html section 5.1.1.1. At least, the HIBP password list should be used as a blacklist. You must adhere to the secure password storage guidelines as discussed in class.
 
 You will not be graded on the actual functionalities of your application, so simply showing a 'welcome' page after authenticating is fine.
+
+### Developed using JavaScript, Node.js, Express.js and MongoDB
